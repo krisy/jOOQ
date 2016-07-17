@@ -57,6 +57,8 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
@@ -81,6 +83,8 @@ import org.jooq.util.jaxb.Property;
 import org.jooq.util.jaxb.Schema;
 import org.jooq.util.jaxb.Strategy;
 import org.jooq.util.jaxb.Target;
+import org.jooq.util.jaxb.CustomType;
+import org.jooq.util.converters.CalendarConverter;
 // ...
 
 
@@ -374,7 +378,22 @@ public class GenerationTool {
             database.setSyntheticPrimaryKeys(new String[] { defaultString(d.getSyntheticPrimaryKeys()) });
             database.setOverridePrimaryKeys(new String[] { defaultString(d.getOverridePrimaryKeys()) });
             database.setSyntheticIdentities(new String[] { defaultString(d.getSyntheticIdentities()) });
-            database.setConfiguredCustomTypes(d.getCustomTypes());
+
+            //TODO this is clearly wrong, just leaving it here, to clear my point
+            List<CustomType> defaultCustomTypes = new ArrayList();
+
+            CustomType calendarCustomType = new CustomType();
+            calendarCustomType.setName("CalendarConverter");
+            calendarCustomType.setConverter(CalendarConverter.class.getCanonicalName());
+            calendarCustomType.setType(Calendar.class.getCanonicalName());
+
+            defaultCustomTypes.add(calendarCustomType);
+
+            List<CustomType> extendedCustomTypes = new ArrayList();
+            extendedCustomTypes.addAll(defaultCustomTypes);
+            extendedCustomTypes.addAll(d.getCustomTypes());
+
+            database.setConfiguredCustomTypes(extendedCustomTypes);
             database.setConfiguredEnumTypes(d.getEnumTypes());
             database.setConfiguredForcedTypes(d.getForcedTypes());
 
